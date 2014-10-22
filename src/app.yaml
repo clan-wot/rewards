@@ -1,0 +1,40 @@
+application: spice-rewards
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+default_expiration: "30d"
+
+libraries:
+- name: django
+  version: "1.4"
+
+env_variables:
+  DJANGO_SETTINGS_MODULE: 'settings'
+
+handlers:
+
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+  mime_type: image/x-icon
+
+- url: /robots\.txt
+  static_files: robots.txt
+  upload: robots\.txt
+  mime_type: text/plain
+
+- url: /.*
+  script: wsgi.app
+
+skip_files:
+- ^(.*/)?app\.yaml
+- ^(.*/)?#.*#
+- ^(.*/)?.*~
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*\.po$
+- ^(.*/)?\..*
+- ^(.*/)?readme\.txt$
+- ^(.*/)?makefile$
+- ^(.*/)?Thumbs\.db$
