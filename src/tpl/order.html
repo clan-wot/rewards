@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}
+Приказы о званиях и награждениях Перцев
+{% endblock %}
+
+{% block content %}
+
+<p>
+<a href="{% url mainpage %}">На главную</a>
+</p>
+
+
+<p>
+Исходный приказ в форме:<br>
+каждая награда/звание на отдельной строке, название награды/звания должно быть отделено двоеточием, список ников через запятые и опциональные пробелы.<br>
+<br>
+Например:<br>
+<br>
+Орденом "Герой HOT SPICE": orenBers<br>
+Орденом Перца 3-й степени: orenBers, Osa4, My_Little_pony_<br>
+<br>
+капитана: wasp_Elf, Xatik_61rus<br>
+</p>
+
+<p>
+<form action="" method="POST"> {% csrf_token %}
+<div>{{ form.errors }}</div>
+{{ form.source }}
+<p><input type="submit" value=" Перевести " /></p>
+</form>
+</p>
+
+{% for acc in data %}
+<p>
+<strong>{{acc.0}}</strong>
+  {% for reward in acc|slice:"1:" %}
+<br>{{reward}}
+  {% endfor %}
+</p>
+{% endfor %}
+
+{% endblock %}

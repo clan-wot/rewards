@@ -6,36 +6,23 @@ from django.template import RequestContext, TemplateDoesNotExist, Context as Std
 from django.core.urlresolvers import reverse
 from django import forms
 
-class Order(forms.Form):
-  source = forms.CharField(widget=forms.Textarea)
+import data
 
 def mainpage(request):
-  data = []
-  if request.method == 'POST':
-    form = Order(request.POST)
-    if form.is_valid():
-      data = trans(form.cleaned_data['source'])
-      #logging.info("send data: %s" % repr(data))
-  else:
-    form = Order()
+  return render_to_response('main.html', {'clans': data.clans, })
 
-  return render_to_response('main.html', {'form': form, 'data': data, }, context_instance=RequestContext(request))
+def clan_leave(request):
+  return HttpResponse('clan_leave')
 
-def trans(txt):
-  people = {}
-  for line in txt.splitlines():
-    try:
-      prize, data = line.split(':')
-      for acc in data.split(','):
-        acc = acc.strip()
-        if acc in people:
-          people[acc].append(prize)
-        else:
-          people[acc] = [prize]
+def clan(request, clanid):
+  return HttpResponse(clanid)
 
-    except:
-      pass
+from google.appengine.ext import db
 
-  dat = [[x] + people[x] for x in people]
-  dat.sort(key=lambda x: x[0].lower())
-  return dat
+# key: wotid
+class Account(db.Model):
+  nick = db.StringProperty()
+  forum_id = db.StringProperty()
+  rank = db.IntegerProperty(default=0)
+  rewards = db.TextProperty()
+

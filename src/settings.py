@@ -56,7 +56,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
-    './',
+    'tpl',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
