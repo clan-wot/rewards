@@ -36,15 +36,12 @@ class Page(object):
         self.response_code = 0
         self.response_info = ()
 
-        # uncomment for deploy at GoogleAppEngine platform
-        # this supress GAE fucking cash using
-        #
-        #import random
-        #
-        #delim = '?'
-        #if delim in url:
-        #    delim = '&'
-        #self.url = "%s%s%s" % (url, delim, str(random.random()))  
+        import random
+        
+        delim = '?'
+        if delim in url:
+            delim = '&'
+        self.url = "%s%s%s" % (url, delim, str(random.random()))  
   
     def fetch(self, retries=5, delays=5):
   
