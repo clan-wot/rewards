@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if clanid %}
+<p>
+<a href="{% url edit clanid=clanid %}">Edit</a>
+</p>
+
+<h3>{{clantag}}</h3>
+
+{% else %}
+
+<h3>Absent</h3>
+
+{% endif %}
+
+{% endblock %}
