@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<p>
+<form action="" method="POST"> {% csrf_token %}
+<input type="hidden" name="update" value="1" />
+<input type="submit" class="btn btn-info" value="Обновить список участников" />
+</form>
+</p>
+
+<h3>{{clantag}}</h3>
+
+{% endblock %}
