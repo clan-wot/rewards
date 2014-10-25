@@ -1,10 +1,11 @@
-import logging
+import logging, json
 
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext, TemplateDoesNotExist, Context as StdContext
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.core.servers.basehttp import FileWrapper
 
 from google.appengine.ext import db
 
@@ -12,14 +13,21 @@ import data, papi, settings
 
 # key: wotid
 class Account(db.Model):
-    nick = db.StringProperty()
-    forum_id = db.StringProperty()
-    clan_id = db.StringProperty()
+    nick = db.StringProperty(default='')
+    forum_id = db.StringProperty(default='')
+    clan_id = db.StringProperty(default='')
     rank = db.IntegerProperty(default=0)
-    rewards = db.TextProperty()
+    rewards = db.TextProperty(default='')
 
 def mainpage(request):
     return render_to_response('main.html', {'clans': data.clans, })
+
+def db_export(request):
+    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account")]
+    return HttpResponse(json.dumps(dat, indent=2), content_type="application/json")
+
+def db_import(request):
+    return HttpResponse('import')
 
 def clan_leave(request):
     return render_to_response('view.html', {})
