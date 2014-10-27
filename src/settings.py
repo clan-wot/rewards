@@ -28,6 +28,8 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+MEDIA_ROOT = 'media'
+
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
@@ -51,7 +53,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-)
+)   
 
 ROOT_URLCONF = 'urls'
 
@@ -62,6 +64,10 @@ TEMPLATE_DIRS = (
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.core.context_processors.debug',
+)
+
+INSTALLED_APPS = (
+    'django_tables2',
 )
 
 papy_key = 'demo'

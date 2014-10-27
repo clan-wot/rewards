@@ -15,7 +15,7 @@
 <h3>Clans</h3>
 <ul>
 {% for clanid, clandata in clans.items %}
-<li><a href="{% url clan clanid=clanid %}">{{ clandata.0 }}</a></li>
+<li><a href="{% url clan clanid=clanid %}?sort=nick">{{ clandata.0 }}</a></li>
 {% endfor %}
 <li><a href="{% url clan_leave %}">Временно отсутствующие</a></li>
 </ul>

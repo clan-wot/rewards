@@ -9,6 +9,7 @@ from django.core.servers.basehttp import FileWrapper
 
 from google.appengine.ext import db, blobstore
 
+import django_tables2 as tables
 import data, papi, settings
 
 # key: wotid
@@ -52,14 +53,52 @@ def data_import(dat):
 def db_import(request):
     return render_to_response('import.html', RequestContext(request, {'upload_url': blobstore.create_upload_url('/edit/import/')}))
 
+class Table(tables.Table):
+    def __init__(self, *args, **kwargs):
+
+        django_request = kwargs.get('request', None)
+        if 'request' in kwargs:
+            del kwargs['request']
+
+        rows_per_page = kwargs.get('rows_per_page', 100)
+        if 'rows_per_page' in kwargs:
+            del kwargs['rows_per_page']
+
+        super(Table, self).__init__(*args, **kwargs)
+        attrs = self.attrs
+        attrs["class"] = "table table-hover paleblue"
+        self.attrs = attrs
+        self.default = ""
+        if django_request:
+            tables.RequestConfig(django_request, paginate={"per_page": rows_per_page}).configure(self)
+
+def table_view():
+    templ_nick = """
+{% if record.2 %}
+<a href="http://spice.forum2x2.net/{{record.2}}">{{value}}</a>
+{% else %}
+{{value}}
+{% endif %}
+"""
+    columns = {}
+    columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
+    columns['rank'] = tables.Column(accessor="4", verbose_name="Rank")
+    columns['rewards'] = tables.Column(accessor="5", verbose_name="Rewards")
+    return type('TableView', (Table,), columns)
+
+def view_ro(request, clanid, clantag):
+    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
+    tbl = table_view()(dat)
+    tables.RequestConfig(request, paginate={"per_page": 100}).configure(tbl)
+    return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': tbl, 'clantag': clantag}))
+
 def clan_leave(request):
-    return render_to_response('view.html', {})
+    return view_ro(request, '', '')
 
 def clan(request, clanid):
     if clanid not in data.clans:
         raise(Http404)
-
-    return render_to_response('view.html', {'clanid': clanid, 'clantag': data.clans[clanid][0]})
+    return view_ro(request, clanid, data.clans[clanid][0])
 
 def edit(request, clanid):
     if clanid not in data.clans:
