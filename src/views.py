@@ -43,11 +43,11 @@ def data_import(dat):
             acc.rank = rank
             acc.rewards = rewards
             import_list.append(acc)
-            i += 1
+        i += 1
 
     if import_list:
         db.put(import_list)
-        logging.warning("imported: %d" % len(import_list))
+    logging.warning("imported: %d" % len(import_list))
 
 def db_import(request):
     return render_to_response('import.html', RequestContext(request, {'upload_url': blobstore.create_upload_url('/edit/import/')}))
