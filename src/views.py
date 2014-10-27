@@ -26,6 +26,29 @@ def db_export(request):
     dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account")]
     return HttpResponse(json.dumps(dat, indent=2), content_type="application/json")
 
+def data_import(dat):
+    #logging.info(json.dumps(dat, indent=2))
+    acc_list = db.get([db.Key.from_path('Account', x[0]) for x in dat])
+
+    i = 0
+    import_list = []
+    while i < len(acc_list):
+        acc = acc_list[i]
+        if acc is None:
+            (key, nick, forum_id, clan_id, rank, rewards) = dat[i]
+            acc = Account(key_name=key)
+            acc.nick = nick
+            acc.forum_id = forum_id
+            acc.clan_id = clan_id #''
+            acc.rank = rank
+            acc.rewards = rewards
+            import_list.append(acc)
+            i += 1
+
+    if import_list:
+        db.put(import_list)
+        logging.warning("imported: %d" % len(import_list))
+
 def db_import(request):
     return render_to_response('import.html', RequestContext(request, {'upload_url': blobstore.create_upload_url('/edit/import/')}))
 
