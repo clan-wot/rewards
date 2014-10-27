@@ -72,25 +72,40 @@ class Table(tables.Table):
         if django_request:
             tables.RequestConfig(django_request, paginate={"per_page": rows_per_page}).configure(self)
 
-def table_view():
-    templ_nick = """
+templ_nick = """
 {% if record.2 %}
-<a href="http://spice.forum2x2.net/{{record.2}}">{{value}}</a>
+<a target="_blank" href="http://spice.forum2x2.net/{{record.2}}">{{value}}</a>
 {% else %}
 {{value}}
 {% endif %}
 """
+
+def table_view(request, dat):
     columns = {}
     columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
     columns['rank'] = tables.Column(accessor="4", verbose_name="Rank")
     columns['rewards'] = tables.Column(accessor="5", verbose_name="Rewards")
-    return type('TableView', (Table,), columns)
+    return type('TableView', (Table,), columns)(dat, request=request)
+
+def table_edit(request, dat):
+
+    templ_forum = """
+<input type="text" name="forum_{{record.0}}" size="6" value="{{value}}" />
+"""
+
+    templ_rank = """
+{{value}}
+"""
+
+    columns = {}
+    columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
+    columns['forum'] = tables.TemplateColumn(templ_forum, accessor="2", verbose_name="Forum")
+    columns['rank'] = tables.TemplateColumn(templ_rank, accessor="4", verbose_name="Rewards")
+    return type('TableEdit', (Table,), columns)(dat, request=request)
 
 def view_ro(request, clanid, clantag):
     dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
-    tbl = table_view()(dat)
-    tables.RequestConfig(request, paginate={"per_page": 100}).configure(tbl)
-    return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': tbl, 'clantag': clantag}))
+    return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': table_view(request, dat), 'clantag': clantag}))
 
 def clan_leave(request):
     return view_ro(request, '', '')
@@ -107,9 +122,24 @@ def edit(request, clanid):
     if request.method == 'POST':
         if "update" in request.POST:
             update_clan(clanid)
-            return redirect(reverse('clan', None, [], {'clanid': clanid,}))
+            return redirect("%s?sort=nick" % reverse('clan', None, [], {'clanid': clanid,}))
+        if "save" in request.POST:
+            db_data = {itm.key().name(): itm for itm in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)}
+            save_list = []
+            for key, item in request.POST.items():
+                if key.startswith('forum_'):
+                    acc_id = key.split('_')[1]
+                    acc = db_data[acc_id]
+                    if acc.forum_id != item.strip():
+                        acc.forum_id = item.strip()
+                        if acc not in save_list:
+                            save_list.append(acc)
+            db.put(save_list)
+            logging.info("save %d" % len(save_list))
+            return redirect("%s?sort=nick" % reverse('clan', None, [], {'clanid': clanid,}))
 
-    return render_to_response('edit.html', RequestContext(request, {'clantag': data.clans[clanid][0]}))
+    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
+    return render_to_response('edit.html', RequestContext(request, {'table': table_edit(request, dat), 'clantag': data.clans[clanid][0]}))
 
 def update_clan(clanid):
     dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wot/clan/info', 'fields=members.account_name&clan_id=%s' % clanid)

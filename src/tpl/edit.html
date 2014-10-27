@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
 
@@ -10,5 +11,13 @@
 </p>
 
 <h3>{{clantag}}</h3>
+
+<form action="" method="POST"> {% csrf_token %}
+<input type="hidden" name="save" value="1" />
+{% render_table table %}
+<p>
+<input type="submit" class="btn btn-info" value="Сохранить" />
+</p>
+</form>
 
 {% endblock %}
