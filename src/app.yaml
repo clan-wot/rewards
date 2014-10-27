@@ -25,7 +25,7 @@ handlers:
   upload: robots\.txt
   mime_type: text/plain
 
-- url: /edit/import$
+- url: /edit/import/.*$
   script: upload.app
   login: admin
 

@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 
-from google.appengine.ext import db
+from google.appengine.ext import db, blobstore
 
 import data, papi, settings
 
@@ -27,7 +27,7 @@ def db_export(request):
     return HttpResponse(json.dumps(dat, indent=2), content_type="application/json")
 
 def db_import(request):
-    return HttpResponse('import')
+    return render_to_response('import.html', RequestContext(request, {'upload_url': blobstore.create_upload_url('/edit/import/')}))
 
 def clan_leave(request):
     return render_to_response('view.html', {})
