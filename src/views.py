@@ -83,7 +83,7 @@ templ_nick = """
 def table_view(request, dat):
     columns = {}
     columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
-    columns['rank'] = tables.Column(accessor="4", verbose_name="Rank")
+    columns['rank'] = tables.Column(accessor="6", verbose_name="Rank", order_by="4")
     columns['rewards'] = tables.Column(accessor="5", verbose_name="Rewards")
     return type('TableView', (Table,), columns)(dat, request=request)
 
@@ -94,17 +94,23 @@ def table_edit(request, dat):
 """
 
     templ_rank = """
+<select name="rank_{{record.0}}">
+{% for key, val in forum_ranks.items %}
+<option value="{{key}}"{% if key == value %} selected="selected"{% endif %}>{{val.0}}</option>
+{% endfor %}
 {{value}}
+</select>
 """
 
     columns = {}
     columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
     columns['forum'] = tables.TemplateColumn(templ_forum, accessor="2", verbose_name="Forum")
-    columns['rank'] = tables.TemplateColumn(templ_rank, accessor="4", verbose_name="Rewards")
+    columns['rank'] = tables.TemplateColumn(templ_rank, accessor="4", verbose_name="Rank")
+    columns['rewards'] = tables.Column(accessor="5", verbose_name="Rewards")
     return type('TableEdit', (Table,), columns)(dat, request=request)
 
 def view_ro(request, clanid, clantag):
-    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
+    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards, data.ranks[acc.rank][0]) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
     return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': table_view(request, dat), 'clantag': clantag}))
 
 def clan_leave(request):
@@ -127,6 +133,7 @@ def edit(request, clanid):
             db_data = {itm.key().name(): itm for itm in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)}
             save_list = []
             for key, item in request.POST.items():
+
                 if key.startswith('forum_'):
                     acc_id = key.split('_')[1]
                     acc = db_data[acc_id]
@@ -134,12 +141,21 @@ def edit(request, clanid):
                         acc.forum_id = item.strip()
                         if acc not in save_list:
                             save_list.append(acc)
+
+                if key.startswith('rank_'):
+                    acc_id = key.split('_')[1]
+                    acc = db_data[acc_id]
+                    if acc.rank != int(item):
+                        acc.rank = int(item)
+                        if acc not in save_list:
+                            save_list.append(acc)
+
             db.put(save_list)
             logging.info("save %d" % len(save_list))
             return redirect("%s?sort=nick" % reverse('clan', None, [], {'clanid': clanid,}))
 
-    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
-    return render_to_response('edit.html', RequestContext(request, {'table': table_edit(request, dat), 'clantag': data.clans[clanid][0]}))
+    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards, data.ranks[acc.rank][0]) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
+    return render_to_response('edit.html', RequestContext(request, {'forum_ranks': data.ranks, 'table': table_edit(request, dat), 'clanid': clanid, 'clantag': data.clans[clanid][0]}))
 
 def update_clan(clanid):
     dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wot/clan/info', 'fields=members.account_name&clan_id=%s' % clanid)
