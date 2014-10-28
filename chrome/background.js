@@ -10,7 +10,7 @@ var msg_text02 = "Обновить профили пользователей";
 var msg_text03 = "Пользователи без профиля";
 var msg_text04 = "На этой странице не обнаружено правильных пользовательских профилей!";
 
-var reward_url = 'wot.inf.lv/clanpanel/clanmedals.php';
+var reward_url = 'localhost:8080/edit';
 var forum_url = 'spice.forum2x2.net/';
 var admin_url = 'http://' + forum_url + "admin/index.forum";
 
@@ -114,19 +114,23 @@ function checkForValidUrl(tabId, changeInfo, tab) {
   if (changeInfo.status == 'complete') {
     if (tab.url.indexOf('http://' + reward_url) > -1) {
       chrome.pageAction.show(tabId);
-      //console.log("Debug...");
+
+      console.log("tab.url: " + tab.url);
+      console.log("targetUrlPatterns: " + "*://" + forum_url + "u*");
+
       chrome.contextMenus.removeAll();
       chrome.contextMenus.create(
         {
          "title": msg_text01, 
-         "contexts":["link"], 
-         "documentUrlPatterns":["*://" + reward_url + "*"], 
-         "targetUrlPatterns":["*://" + forum_url + "u*"], 
+         "contexts": ["link"], 
+         "targetUrlPatterns": ["*://" + forum_url + "u*"], 
          "onclick": ForumUpdate
         });
     }
   }
 }
+
+
 
 function getAccounts(results) {
   if (results[0][0].length > 0) {
