@@ -72,13 +72,7 @@ class Table(tables.Table):
         if django_request:
             tables.RequestConfig(django_request, paginate={"per_page": rows_per_page}).configure(self)
 
-templ_nick = """
-{% if record.2 %}
-<a target="_blank" href="http://spice.forum2x2.net/{{record.2}}">{{value}}</a>
-{% else %}
-{{value}}
-{% endif %}
-"""
+templ_nick = "{% if record.2 %}<a target='_blank' href='" + data.forum + "/{{record.2}}'>{{value}}</a>{% else %}{{value}}{% endif %}"
 
 def table_view(request, dat):
     columns = {}
