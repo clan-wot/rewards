@@ -72,7 +72,7 @@ class Table(tables.Table):
         if django_request:
             tables.RequestConfig(django_request, paginate={"per_page": rows_per_page}).configure(self)
 
-templ_nick = "{% if record.2 %}<a target='_blank' href='" + data.forum + "/{{record.2}}'>{{value}}</a>{% else %}{{value}}{% endif %}"
+templ_nick = "{% if record.2 %}<a target='_blank' id='link_{{record.2}}' href='" + data.forum + "/{{record.2}}'>{{value}}</a>{% else %}{{value}}{% endif %}"
 
 def table_view(request, dat):
     columns = {}
@@ -88,7 +88,7 @@ def table_edit(request, dat):
 """
 
     templ_rank = """
-<select name="rank_{{record.0}}">
+<select name="rank_{{record.0}}" {% if record.2 %}id="rank_{{record.2}}"{% endif %}>
 {% for key, val in forum_ranks.items %}
 <option value="{{key}}"{% if key == value %} selected="selected"{% endif %}>{{val.0}}</option>
 {% endfor %}
