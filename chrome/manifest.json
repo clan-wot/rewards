@@ -1,6 +1,6 @@
 {
   "name": "Rewards on forum2x2.net",
-  "version": "1.2",
+  "version": "2.0",
   "description": "Put user rewards from/to db at forum2x2.net.",
 
   "background": {
