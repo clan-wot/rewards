@@ -9,8 +9,10 @@ var msg_text01 = "Обновить на форуме";
 var msg_text02 = "Обновить профили пользователей";
 var msg_text03 = "Пользователи без профиля";
 var msg_text04 = "На этой странице не обнаружено правильных пользовательских профилей!";
+var msg_text05 = "Загрузить с форума";
 
-var reward_url = 'localhost:8080/edit';
+var reward_url_edit = 'localhost:8080/edit';
+var reward_url_view = 'localhost:8080/clan';
 var forum_url = 'spice.forum2x2.net/';
 var admin_url = 'http://' + forum_url + "admin/index.forum";
 
@@ -23,6 +25,62 @@ var current_user_rewards = '[img]http://illiweb.com/fa/empty.gif[/img]';
 
 var job_list = [];
 var data_page_tabId = 0;
+
+/* ******************** */
+/* load data from forum */
+/* ******************** */
+
+function ForumLoad(info, tab) {
+  console.log("ForumLoad " + info.linkUrl);
+  current_user_profile = info.linkUrl;
+  chrome.tabs.onUpdated.addListener(onUserProfileOpenForLoad);
+  chrome.tabs.create({url: info.linkUrl});
+}
+
+function onUserProfileOpenForLoad(tabId, changeInfo, tab) {
+  console.log("call onUserProfileOpenForLoad");
+  if (changeInfo.status == 'complete') {
+    console.log("onUserProfileOpenForLoad status complete");
+    if (tab.url == current_user_profile) {
+      console.log("onUserProfileOpenForLoad " + tab.url);
+      chrome.tabs.onUpdated.removeListener(onUserProfileOpenForLoad);
+      chrome.tabs.executeScript(tabId, {file: "load_user_data.js"}, loadUserData);
+    }
+  }
+}
+
+function loadUserData(results) {
+  var rslt = results[0];
+
+  var user_id = "'" + current_user_profile.split(forum_url)[1] + "'";
+
+  var user_rank = rslt.shift();
+  if (user_rank == null) {
+    user_rank = "''";
+  } else {
+    user_rank = "'" + user_rank + "'";
+  }
+
+  var user_rewards = "";
+  if (rslt.length > 0) {
+    user_rewards = rslt.join("', '");
+    user_rewards = "'" + user_rewards + "'";
+  }
+  var js_code = "var user_id = " + user_id + "; var user_rank = " + user_rank + "; var user_rewards = [" + user_rewards + "];";
+
+  console.log("loadUserData: ");
+  console.log("js_code: " + js_code);
+
+  chrome.tabs.executeScript(work_tab_id, {code: js_code}, 
+       function() {
+       chrome.tabs.executeScript(work_tab_id, {file: 'set_user_data.js'});
+  });
+  chrome.tabs.update(work_tab_id, {selected: true});
+}
+
+/* ******************** */
+/* update data on forum */
+/* ******************** */
 
 function getUserData(results) {
   current_user_profile = results[0][0];
@@ -104,7 +162,7 @@ function onUserProfileOpen(tabId, changeInfo, tab) {
     if (tab.url == current_user_profile) {
       work_tab_id = tabId;
       chrome.tabs.onUpdated.removeListener(onUserProfileOpen);
-      chrome.tabs.executeScript(tabId, {file: "get_admin_profile.js"}, getProfileAdminLink)
+      chrome.tabs.executeScript(tabId, {file: "get_admin_profile.js"}, getProfileAdminLink);
     }
   }
 }
@@ -112,12 +170,24 @@ function onUserProfileOpen(tabId, changeInfo, tab) {
 // Called when the url of a tab changes.
 function checkForValidUrl(tabId, changeInfo, tab) {
   if (changeInfo.status == 'complete') {
-    if (tab.url.indexOf('http://' + reward_url) > -1) {
+
+    if (tab.url.indexOf('http://' + reward_url_edit) > -1) {
       chrome.pageAction.show(tabId);
+      work_tab_id = tabId;
+      //console.log("tab.url: " + tab.url);
+      chrome.contextMenus.removeAll();
+      chrome.contextMenus.create(
+        {
+         "title": msg_text05, 
+         "contexts": ["link"], 
+         "targetUrlPatterns": ["*://" + forum_url + "u*"], 
+         "onclick": ForumLoad
+        });
+    }
 
-      console.log("tab.url: " + tab.url);
-      console.log("targetUrlPatterns: " + "*://" + forum_url + "u*");
-
+    if (tab.url.indexOf('http://' + reward_url_view) > -1) {
+      chrome.pageAction.show(tabId);
+      //console.log("tab.url: " + tab.url);
       chrome.contextMenus.removeAll();
       chrome.contextMenus.create(
         {
@@ -127,10 +197,9 @@ function checkForValidUrl(tabId, changeInfo, tab) {
          "onclick": ForumUpdate
         });
     }
+
   }
 }
-
-
 
 function getAccounts(results) {
   if (results[0][0].length > 0) {
