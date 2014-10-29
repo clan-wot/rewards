@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<p>
+<a href="{% url mainpage %}">На главную</a>
+</p>
+<p>
+<a href="{% url order %}">Транслятор приказов</a>
+</p>
+<p>
+<a href="{% url db_export %}">Экспорт базы</a>
+</p>
+<p>
+<a href="{% url db_import %}">Импорт в базу</a>
+</p>
+
+{% endblock %}

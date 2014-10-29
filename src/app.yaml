@@ -36,6 +36,10 @@ handlers:
   login: admin
   script: wsgi.app
 
+- url: /admin
+  login: admin
+  script: wsgi.app
+
 - url: /.*
   script: wsgi.app
 

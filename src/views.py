@@ -23,6 +23,9 @@ class Account(db.Model):
 def mainpage(request):
     return render_to_response('main.html', {'clans': data.clans, })
 
+def admin(request):
+    return render_to_response('admin.html', {})
+
 def db_export(request):
     dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account")]
     return HttpResponse(json.dumps(dat, indent=2), content_type="application/json")
