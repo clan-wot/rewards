@@ -86,12 +86,12 @@ rewards = {
   
   30:  (True, "ВСЛ", "За выслугу", 
     (
-      ("Болгарский перец 6", "http://wot.inf.lv/imgs/small/medali/22.png"), 
-      ("Зеленый перец 5", "http://wot.inf.lv/imgs/small/medali/23.png"), 
-      ("Перец чили 4", "http://wot.inf.lv/imgs/small/medali/24.png"), 
-      ("Жгучий  перец 3", "http://wot.inf.lv/imgs/small/medali/25.png"), 
-      ("Душистый перец 2", "http://wot.inf.lv/imgs/small/medali/26.png"), 
-      ("Старый  перец 1", "http://wot.inf.lv/imgs/small/medali/27.png"), 
+      ("6 болгарский", "http://wot.inf.lv/imgs/small/medali/22.png"), 
+      ("5 зеленый", "http://wot.inf.lv/imgs/small/medali/23.png"), 
+      ("4 чили", "http://wot.inf.lv/imgs/small/medali/24.png"), 
+      ("3 жгучий", "http://wot.inf.lv/imgs/small/medali/25.png"), 
+      ("2 душистый", "http://wot.inf.lv/imgs/small/medali/26.png"), 
+      ("1 старый", "http://wot.inf.lv/imgs/small/medali/27.png"), 
     ),  
 	"Выдается за время нахождения в HOT SPICE. (1,5 года, 1 год, 6 мес., 3 мес., 2 мес., 1 мес.) Одновременно можно иметь одну медаль (одной из степеней)."
   ),
@@ -173,9 +173,9 @@ rewards = {
 
   54:  (True, "ПРЦ", "Орден перца", 
     (
-      ("3 степени", "http://wot.inf.lv/imgs/small/ordena/6.png"), 
-      ("2 степени", "http://wot.inf.lv/imgs/small/ordena/5.png"), 
-      ("1 степени", "http://wot.inf.lv/imgs/small/ordena/4.png"), 
+      ("3 ст", "http://wot.inf.lv/imgs/small/ordena/6.png"), 
+      ("2 ст", "http://wot.inf.lv/imgs/small/ordena/5.png"), 
+      ("1 ст", "http://wot.inf.lv/imgs/small/ordena/4.png"), 
     ),
 	"Награждаются бойцы HOT SPICE за заслуги в ходе ведения Мировой войны на глобальной карте. Награждение производится последовательно. Одновременно можно иметь один орден (одной из степеней)."
   ),
