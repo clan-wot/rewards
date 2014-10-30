@@ -84,6 +84,21 @@ def table_view(request, dat):
     columns['rewards'] = tables.Column(accessor="5", verbose_name="Rewards")
     return type('TableView', (Table,), columns)(dat, request=request)
 
+class ColumnSelectList(tables.TemplateColumn):
+    def __init__(self, col_name, options_list, *args, **kwargs):
+        templ = '<select name="' + col_name + '_{{record.0}}" {% if record.2 %}id="' + col_name + '{{record.2}}"{% endif %}>'
+        templ += '<option value="0"{% if value == 0 %} selected="selected"{% endif %}></option>'
+        for n, name in options_list:
+            templ += '<option value="' + str(n) + '"{% if value == ' + str(n) + ' %} selected="selected"{% endif %}>' + name + '</option>'
+        templ += '</select>'
+        super(ColumnSelectList, self).__init__(templ, *args, **kwargs)
+
+class ColumnCheckBox(tables.TemplateColumn):
+    def __init__(self, col_name, *args, **kwargs):
+        template = "<input type='checkbox' %s name='%s_{{record.0}}' value='{{value}}' />" 
+        template = template % ('{% if value %}checked="checked"{% endif %}', col_name)
+        super(ColumnCheckBox, self).__init__(template, *args, **kwargs)
+
 def table_edit(request, dat):
 
     templ_forum = """
@@ -103,7 +118,22 @@ def table_edit(request, dat):
     columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
     columns['forum'] = tables.TemplateColumn(templ_forum, accessor="2", verbose_name="Forum")
     columns['rank'] = tables.TemplateColumn(templ_rank, accessor="4", verbose_name="Rank")
-    columns['rewards'] = tables.Column(accessor="5", verbose_name="Rewards")
+
+    count = 5 # next accessor index
+    for key in sorted(data.rewards.keys()):
+        col_name = "r%d" % key
+        isRate, col_title, name, grades, note, = data.rewards[key]
+        attrs = {
+          "sort_link_title": "%s\n%s" % (name, note),
+          "td": {"title": name},
+        }
+
+        if isRate:
+            columns[col_name] = ColumnSelectList("reward_%s" % key, list(enumerate([x[0] for x in grades], start=1)), accessor=str(count), verbose_name=col_title, attrs=attrs)
+        else:
+            columns[col_name] = ColumnCheckBox("reward_%s" % key, accessor=str(count), verbose_name=col_title, attrs=attrs)
+        count += 1
+                                             
     return type('TableEdit', (Table,), columns)(dat, request=request)
 
 def view_ro(request, clanid, clantag):
@@ -117,6 +147,20 @@ def clan(request, clanid):
     if clanid not in data.clans:
         raise(Http404)
     return view_ro(request, clanid, data.clans[clanid][0])
+
+def unpack_rewards(txt):
+    rslt = []
+    for key in sorted(data.rewards.keys()):
+        k = ":%s=" % key
+        v = 0
+        if k in txt:
+            txt = txt.split(k)[1]
+            if ':' in txt:
+                txt = txt.split(':')[0]
+            v = int(txt)
+        rslt.append(v)
+
+    return rslt
 
 def edit(request, clanid):
     if clanid not in data.clans:
@@ -151,7 +195,7 @@ def edit(request, clanid):
             logging.info("save %d" % len(save_list))
             return redirect("%s?sort=nick" % reverse('clan', None, [], {'clanid': clanid,}))
 
-    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards, data.ranks[acc.rank][0]) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
+    dat = [ [acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank] + unpack_rewards(acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
     return render_to_response('edit.html', RequestContext(request, {'forum_ranks': data.ranks, 'table': table_edit(request, dat), 'clanid': clanid, 'clantag': data.clans[clanid][0]}))
 
 def update_clan(clanid):
