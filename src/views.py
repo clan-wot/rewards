@@ -95,7 +95,7 @@ class ColumnSelectList(tables.TemplateColumn):
 
 class ColumnCheckBox(tables.TemplateColumn):
     def __init__(self, col_name, *args, **kwargs):
-        template = "<input type='checkbox' %s name='%s_{{record.0}}' value='{{value}}' />" 
+        template = "<input type='checkbox' %s name='%s_{{record.0}}' value='1' />" 
         template = template % ('{% if value %}checked="checked"{% endif %}', col_name)
         super(ColumnCheckBox, self).__init__(template, *args, **kwargs)
 
@@ -148,6 +148,12 @@ def clan(request, clanid):
         raise(Http404)
     return view_ro(request, clanid, data.clans[clanid][0])
 
+def pack_rewards(dat):
+    k = ""
+    for key in sorted(dat.keys()):
+        k += ":%s=%s" % (key, dat[key])
+    return k
+
 def unpack_rewards(txt):
     rslt = []
     for key in sorted(data.rewards.keys()):
@@ -172,7 +178,9 @@ def edit(request, clanid):
             return redirect("%s?sort=nick" % reverse('clan', None, [], {'clanid': clanid,}))
         if "save" in request.POST:
             db_data = {itm.key().name(): itm for itm in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)}
+            new_rewards = {itm: {} for itm in db_data}
             save_list = []
+
             for key, item in request.POST.items():
 
                 if key.startswith('forum_'):
@@ -191,11 +199,32 @@ def edit(request, clanid):
                         if acc not in save_list:
                             save_list.append(acc)
 
+                if key.startswith('reward_'):
+                    tmp, medal, acc_id = key.split('_')
+                    v = int(item)
+                    if v > 0:
+                        new_rewards[acc_id][int(medal)] = v
+                        #logging.warning("acc %s medal %s -> %s" % (acc_id, int(medal), v))
+
+            for key, item in new_rewards.items():
+                n = pack_rewards(item)
+                acc = db_data[key]
+                if n != acc.rewards:
+
+                    logging.warning("acc %s rewards '%s' -> '%s'" % (key, acc.rewards, n))
+
+                    acc.rewards = n
+                    if acc not in save_list:
+                        save_list.append(acc)
+
             db.put(save_list)
             logging.info("save %d" % len(save_list))
             return redirect("%s?sort=nick" % reverse('clan', None, [], {'clanid': clanid,}))
 
     dat = [ [acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank] + unpack_rewards(acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
+
+    logging.info("dat: %s" % dat)
+
     return render_to_response('edit.html', RequestContext(request, {'forum_ranks': data.ranks, 'table': table_edit(request, dat), 'clanid': clanid, 'clantag': data.clans[clanid][0]}))
 
 def update_clan(clanid):
