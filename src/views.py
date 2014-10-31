@@ -8,9 +8,25 @@ from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 
 from google.appengine.ext import db, blobstore
+from google.appengine.api import memcache
 
 import django_tables2 as tables
 import data, papi, settings
+
+clan_members_key = 'cml_%s'
+memb_key = 'mmb_%s'
+
+def memcached(mem_mask):
+    def cached_func(f):
+        def callf(*arg, **kwargs):
+            memkey = mem_mask % arg[0]
+            ret = memcache.get(memkey)
+            if ret is None:
+                ret = f(*arg, **kwargs)
+            memcache.set(memkey, ret)
+            return ret
+        return callf
+    return cached_func
 
 # key: wotid
 class Account(db.Model):
@@ -51,6 +67,8 @@ def data_import(dat):
 
     if import_list:
         db.put(import_list)
+        memcache.flush_all()
+
     logging.warning("imported: %d" % len(import_list))
 
 def db_import(request):
@@ -162,7 +180,8 @@ def table_edit(request, dat):
     return type('TableEdit', (Table,), columns)(dat, request=request)
 
 def view_ro(request, clanid, clantag):
-    dat = [[acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, data.ranks[acc.rank][0]] + unpack_rewards(acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
+    dat = get_members_info(clanid)
+    dat = [list(x[:-1]) + [data.ranks[x[4]][0]] + unpack_rewards(x[-1]) for x in dat]
     return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': table_view(request, dat), 'clantag': clantag}))
 
 def clan_leave(request):
@@ -243,15 +262,42 @@ def edit(request, clanid):
                         save_list.append(acc)
 
             db.put(save_list)
+            for acc in save_list:
+                memcache.delete(memb_key % acc.key().name())
+
             logging.info("save %d" % len(save_list))
             return redirect("%s?sort=nick" % reverse('clan', None, [], {'clanid': clanid,}))
 
-    dat = [ [acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank] + unpack_rewards(acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
-
+    dat = get_members_info(clanid)
+    dat = [list(x[:-1]) + unpack_rewards(x[-1]) for x in dat]
     #for itm in dat:
     #    logging.info("dat: %s" % itm)
 
     return render_to_response('edit.html', RequestContext(request, {'forum_ranks': data.ranks, 'table': table_edit(request, dat), 'clanid': clanid, 'clantag': data.clans[clanid][0]}))
+
+def get_members_info(clanid):
+
+    lst = get_members_list(clanid)
+    info = []
+    read_list = []
+
+    for x in lst:
+        r = memcache.get(memb_key % x)
+        if r:
+            info.append(r)
+        else:
+            read_list.append(x)
+
+    for acc in db.get([db.Key.from_path('Account', x) for x in read_list]):
+        dat = (acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards,)
+        memcache.set(memb_key % acc.key().name(), dat)
+        info.append(dat)
+
+    return info
+
+@memcached(clan_members_key)
+def get_members_list(clanid):
+    return [x.name() for x in db.GqlQuery("SELECT __key__ FROM Account WHERE clan_id='%s'" % clanid)]
 
 def update_clan(clanid):
     dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wot/clan/info', 'fields=members.account_name&clan_id=%s' % clanid)
@@ -311,3 +357,5 @@ def update_clan(clanid):
                 acc.nick = dat_new[acc.key().name()]
             db.put(save_list)
         logging.warning("nick: %d" % len(save_list))
+
+    memcache.delete(clan_members_key % clanid)
