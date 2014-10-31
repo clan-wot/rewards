@@ -86,7 +86,7 @@ def table_view(request, dat):
 
 class ColumnSelectList(tables.TemplateColumn):
     def __init__(self, col_name, options_list, *args, **kwargs):
-        templ = '<select name="' + col_name + '_{{record.0}}" {% if record.2 %}id="' + col_name + '{{record.2}}"{% endif %}>'
+        templ = '<select name="' + col_name + '_{{record.0}}" {% if record.2 %}id="' + col_name + '_{{record.2}}"{% endif %}>'
         templ += '<option value="0"{% if value == 0 %} selected="selected"{% endif %}></option>'
         for n, name in options_list:
             templ += '<option value="' + str(n) + '"{% if value == ' + str(n) + ' %} selected="selected"{% endif %}>' + name + '</option>'
@@ -95,8 +95,7 @@ class ColumnSelectList(tables.TemplateColumn):
 
 class ColumnCheckBox(tables.TemplateColumn):
     def __init__(self, col_name, *args, **kwargs):
-        template = "<input type='checkbox' %s name='%s_{{record.0}}' value='1' />" 
-        template = template % ('{% if value %}checked="checked"{% endif %}', col_name)
+        template = '<input type="checkbox" {% if value %}checked="checked"{% endif %} name="' + col_name + '_{{record.0}}" {% if record.2 %}id="' + col_name + '_{{record.2}}"{% endif %} value="1" />'
         super(ColumnCheckBox, self).__init__(template, *args, **kwargs)
 
 def table_edit(request, dat):

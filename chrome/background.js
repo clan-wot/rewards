@@ -67,10 +67,10 @@ function loadUserData(results) {
     user_rewards = "'" + user_rewards + "'";
   }
   var js_code = "var user_id = " + user_id + "; var user_rank = " + user_rank + "; var user_rewards = [" + user_rewards + "];";
-
+  /*
   console.log("loadUserData: ");
   console.log("js_code: " + js_code);
-
+  */
   chrome.tabs.executeScript(work_tab_id, {code: js_code}, 
        function() {
        chrome.tabs.executeScript(work_tab_id, {file: 'set_user_data.js'});

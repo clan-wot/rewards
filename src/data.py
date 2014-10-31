@@ -30,16 +30,16 @@ rewards = {
   10:  (False, "ГВР", "Гвардия", "http://wot.inf.lv/imgs/small/znachki/21.png", 
   "Награждаются командиры и бойцы HOT SPICE у которых в ангаре 10 и более образцов ТОП техники. Для Артоводов - 4 ТОП САУ + 2 ТОП танков (СТ, ТТ, ПТ-САУ)."
   ),
-	   
-#  20:  (False, "", "Отличный танкист", "http://wot.inf.lv/imgs/small/znachki/20.png",
-#  "Награждаются командиры и бойцы HOT SPICE у которых в ангаре 5 и более образцов ТОП техники. Для Артоводов - 3 ТОП САУ + 1 ТОП танк (СТ, ТТ, ПТ-САУ)."
-#  ),
-	   
-  11:  (False, "УБД", "Участник боевых действий", "http://wot.inf.lv/imgs/small/znachki/uchastnik.png",
+
+  11:  (False, "ОТЛ", "Отличный танкист", "http://wot.inf.lv/imgs/small/znachki/20.png",
+  "Награждаются командиры и бойцы HOT SPICE у которых в ангаре 5 и более образцов ТОП техники. Для Артоводов - 3 ТОП САУ + 1 ТОП танк (СТ, ТТ, ПТ-САУ)."
+  ),
+  
+  12:  (False, "УБД", "Участник боевых действий", "http://wot.inf.lv/imgs/small/znachki/uchastnik.png",
   "Награждаются командиры и бойцы HOT SPICE за участие в боевых действиях на ГК."
   ),
 	   
-  12:  (False, "ЛЕД", "Леди HOT SPICE", "http://wot.inf.lv/imgs/small/znachki/ledi.png",
+  13:  (False, "ЛЕД", "Леди HOT SPICE", "http://wot.inf.lv/imgs/small/znachki/ledi.png",
   "Является отличительным знаком 'Боевых подруг' HOT SPICE."
   ),
 
