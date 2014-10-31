@@ -154,13 +154,13 @@ def pack_rewards(dat):
         k += ":%s=%s" % (key, dat[key])
     return k
 
-def unpack_rewards(txt):
+def unpack_rewards(text):
     rslt = []
     for key in sorted(data.rewards.keys()):
         k = ":%s=" % key
         v = 0
-        if k in txt:
-            txt = txt.split(k)[1]
+        if k in text:
+            txt = text.split(k)[1]
             if ':' in txt:
                 txt = txt.split(':')[0]
             v = int(txt)
@@ -223,7 +223,8 @@ def edit(request, clanid):
 
     dat = [ [acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank] + unpack_rewards(acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
 
-    logging.info("dat: %s" % dat)
+    #for itm in dat:
+    #    logging.info("dat: %s" % itm)
 
     return render_to_response('edit.html', RequestContext(request, {'forum_ranks': data.ranks, 'table': table_edit(request, dat), 'clanid': clanid, 'clantag': data.clans[clanid][0]}))
 
