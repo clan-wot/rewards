@@ -80,9 +80,35 @@ templ_nick = "{% if record.2 %}<a target='_blank' id='link_{{record.2}}' href='"
 def table_view(request, dat):
     columns = {}
     columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
-    columns['rank'] = tables.Column(accessor="6", verbose_name="Rank", order_by="4")
-    columns['rewards'] = tables.Column(accessor="5", verbose_name="Rewards")
+    columns['rank'] = tables.Column(accessor="5", verbose_name="Rank", order_by="4")
+
+    count = 6 # next accessor index
+    for key in sorted(data.rewards.keys()):
+        col_name = "r%d" % key
+        isRate, col_title, name, grades, note, = data.rewards[key]
+        attrs = {
+          "sort_link_title": "%s\n%s" % (name, note),
+          "td": {"title": name},
+        }
+
+        if isRate:
+            columns[col_name] = ColumnSelectView(grades, accessor=str(count), verbose_name=col_title, attrs=attrs)
+        else:
+            columns[col_name] = tables.BooleanColumn(accessor=str(count), verbose_name=col_title, attrs=attrs)
+        count += 1
+
     return type('TableView', (Table,), columns)(dat, request=request)
+
+class ColumnSelectView(tables.Column):
+    def __init__(self, options_list, *args, **kwargs):
+        self.options_list = options_list
+        super(ColumnSelectView, self).__init__(*args, **kwargs)
+
+    def render(self, value):
+        v = int(value)
+        if (v > 0) and (v <= (len(self.options_list) + 1)):
+            return self.options_list[v-1][0]
+        return ''
 
 class ColumnSelectList(tables.TemplateColumn):
     def __init__(self, col_name, options_list, *args, **kwargs):
@@ -136,7 +162,7 @@ def table_edit(request, dat):
     return type('TableEdit', (Table,), columns)(dat, request=request)
 
 def view_ro(request, clanid, clantag):
-    dat = [(acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards, data.ranks[acc.rank][0]) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
+    dat = [[acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, data.ranks[acc.rank][0]] + unpack_rewards(acc.rewards) for acc in db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)]
     return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': table_view(request, dat), 'clantag': clantag}))
 
 def clan_leave(request):
