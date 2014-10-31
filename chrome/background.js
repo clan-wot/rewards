@@ -11,8 +11,12 @@ var msg_text03 = "Пользователи без профиля";
 var msg_text04 = "На этой странице не обнаружено правильных пользовательских профилей!";
 var msg_text05 = "Загрузить с форума";
 
-var reward_url_edit = 'localhost:8080/edit';
-var reward_url_view = 'localhost:8080/clan';
+var host = 'spice-rewards.appspot.com'
+//var host = 'localhost:8080'
+
+var reward_url_edit = host + '/edit';
+var reward_url_view = host + '/clan';
+
 var forum_url = 'spice.forum2x2.net/';
 var admin_url = 'http://' + forum_url + "admin/index.forum";
 

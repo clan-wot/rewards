@@ -15,7 +15,7 @@
   },
 
   "permissions" : [
-    "tabs", "contextMenus", "http://localhost:8080//*", "http://spice.forum2x2.net/*"
+    "tabs", "contextMenus", "http://localhost:8080//*", "http://spice.forum2x2.net/*", "http://spice-rewards.appspot.com/*"
   ],
 
   "manifest_version": 2
