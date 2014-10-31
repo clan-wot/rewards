@@ -87,7 +87,7 @@ rewards = {
   30:  (True, "ВСЛ", "За выслугу", 
     (
       ("6 болгарский", "http://wot.inf.lv/imgs/small/medali/22.png"), 
-      ("5 зеленый", "http://wot.inf.lv/imgs/small/medali/23.png"), 
+      ("5 пикантный", "http://wot.inf.lv/imgs/small/medali/23.png"), 
       ("4 чили", "http://wot.inf.lv/imgs/small/medali/24.png"), 
       ("3 жгучий", "http://wot.inf.lv/imgs/small/medali/25.png"), 
       ("2 душистый", "http://wot.inf.lv/imgs/small/medali/26.png"), 
