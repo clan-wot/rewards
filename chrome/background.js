@@ -11,8 +11,8 @@ var msg_text03 = "Пользователи без профиля";
 var msg_text04 = "На этой странице не обнаружено правильных пользовательских профилей!";
 var msg_text05 = "Загрузить с форума";
 
-var host = 'spice-rewards.appspot.com'
-//var host = 'localhost:8080'
+//var host = 'spice-rewards.appspot.com'
+var host = 'localhost:8080'
 
 var reward_url_edit = host + '/edit';
 var reward_url_view = host + '/clan';
@@ -171,38 +171,43 @@ function onUserProfileOpen(tabId, changeInfo, tab) {
   }
 }
 
-// Called when the url of a tab changes.
-function checkForValidUrl(tabId, changeInfo, tab) {
-  if (changeInfo.status == 'complete') {
+function setContextMenu(url, tabId) {
+  chrome.contextMenus.removeAll();
+  console.log("setContextMenu: " + url);
 
-    if (tab.url.indexOf('http://' + reward_url_edit) > -1) {
-      chrome.pageAction.show(tabId);
-      work_tab_id = tabId;
-      //console.log("tab.url: " + tab.url);
-      chrome.contextMenus.removeAll();
-      chrome.contextMenus.create(
-        {
-         "title": msg_text05, 
-         "contexts": ["link"], 
-         "targetUrlPatterns": ["*://" + forum_url + "u*"], 
-         "onclick": ForumLoad
-        });
-    }
-
-    if (tab.url.indexOf('http://' + reward_url_view) > -1) {
-      chrome.pageAction.show(tabId);
-      //console.log("tab.url: " + tab.url);
-      chrome.contextMenus.removeAll();
-      chrome.contextMenus.create(
-        {
-         "title": msg_text01, 
-         "contexts": ["link"], 
-         "targetUrlPatterns": ["*://" + forum_url + "u*"], 
-         "onclick": ForumUpdate
-        });
-    }
-
+  if (url.indexOf('http://' + reward_url_edit) > -1) {
+    chrome.pageAction.show(tabId);
+    work_tab_id = tabId;
+    chrome.contextMenus.create(
+      {
+       "title": msg_text05, 
+       "contexts": ["link"], 
+       "targetUrlPatterns": ["*://" + forum_url + "u*"], 
+       "onclick": ForumLoad
+      });
   }
+
+  if (url.indexOf('http://' + reward_url_view) > -1) {
+    chrome.pageAction.show(tabId);
+    chrome.contextMenus.create(
+      {
+       "title": msg_text01, 
+       "contexts": ["link"], 
+       "targetUrlPatterns": ["*://" + forum_url + "u*"], 
+       "onclick": ForumUpdate
+      });
+  }
+}
+
+// Called when the url of a tab changes.
+function checkForValidUrl1(tabId, changeInfo, tab) {
+  if (changeInfo.status == 'complete') {
+    setContextMenu(tab.url, tabId);
+  }
+}
+
+function checkForValidUrl2(activeInfo) {
+  chrome.tabs.get(activeInfo.tabId, function(tab) { setContextMenu(tab.url, tab.id); } );
 }
 
 function getAccounts(results) {
@@ -237,5 +242,6 @@ function updateAll(tab) {
 }
 
 // Listen for any changes to the URL of any tab.
-chrome.tabs.onUpdated.addListener(checkForValidUrl);
-chrome.pageAction.onClicked.addListener(updateAll);
+chrome.tabs.onUpdated.addListener(checkForValidUrl1);
+chrome.tabs.onActivated.addListener(checkForValidUrl2)
+//chrome.pageAction.onClicked.addListener(updateAll);
