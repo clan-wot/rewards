@@ -93,14 +93,14 @@ class Table(tables.Table):
         if django_request:
             tables.RequestConfig(django_request, paginate={"per_page": rows_per_page}).configure(self)
 
-templ_nick = "{% if record.2 %}<a target='_blank' id='link_{{record.2}}' href='" + data.forum + "/{{record.2}}'>{{value}}</a>{% else %}{{value}}{% endif %}"
+templ_nick = "{% if record.2 %}<a target='_blank' title='{{record.5}}' id='link_{{record.2}}' href='" + data.forum + "/{{record.2}}'>{{value}}</a>{% else %}{{value}}{% endif %}"
 
 def table_view(request, dat):
     columns = {}
     columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
-    columns['rank'] = tables.Column(accessor="5", verbose_name="Rank", order_by="4")
+    columns['rank'] = tables.Column(accessor="6", verbose_name="Rank", order_by="4")
 
-    count = 6 # next accessor index
+    count = 7 # next accessor index
     for key in sorted(data.rewards.keys()):
         col_name = "r%d" % key
         isRate, col_title, name, grades, note, = data.rewards[key]
@@ -162,7 +162,7 @@ def table_edit(request, dat):
     columns['forum'] = tables.TemplateColumn(templ_forum, accessor="2", verbose_name="Forum")
     columns['rank'] = tables.TemplateColumn(templ_rank, accessor="4", verbose_name="Rank")
 
-    count = 5 # next accessor index
+    count = 6 # next accessor index
     for key in sorted(data.rewards.keys()):
         col_name = "r%d" % key
         isRate, col_title, name, grades, note, = data.rewards[key]
@@ -181,7 +181,7 @@ def table_edit(request, dat):
 
 def view_ro(request, clanid, clantag):
     dat = get_members_info(clanid)
-    dat = [list(x[:-1]) + [data.ranks[x[4]][0]] + unpack_rewards(x[-1]) for x in dat]
+    dat = [list(x[:-1]) + [make_bbcode(x[-1])] + [data.ranks[x[4]][0]] + unpack_rewards(x[-1]) for x in dat]
     return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': table_view(request, dat), 'clantag': clantag}))
 
 def clan_leave(request):
@@ -197,6 +197,37 @@ def pack_rewards(dat):
     for key in sorted(dat.keys()):
         k += ":%s=%s" % (key, dat[key])
     return k
+
+def make_bbcode(text):
+    codes = []
+    for key in sorted(data.rewards.keys()):
+        k = ":%s=" % key
+        if k in text:
+            txt = text.split(k)[1]
+            if ':' in txt:
+                txt = txt.split(':')[0]
+            v = int(txt)
+            isRank, col, title, grade, note = data.rewards[key]
+            if isRank:
+                name, medal = grade[v-1]
+                title += " %s" % name
+            else:
+                medal = grade
+            codes.append((title, medal))
+
+    if codes:
+        rslt = '[table border="0"]\n[tr]\n'
+        count = 0
+        for itm in codes:
+            if (count > 0) and ((count % 4) == 0):
+                rslt += '[/tr]\n[tr]\n'
+            rslt += '[td title="%s"][IMG]%s[/IMG][/td]\n' % itm
+            count += 1
+        rslt += '[/tr]\n[/table]'
+    else:
+        rslt = ""
+
+    return rslt
 
 def unpack_rewards(text):
     rslt = []
@@ -269,7 +300,7 @@ def edit(request, clanid):
             return redirect("%s?sort=nick" % reverse('clan', None, [], {'clanid': clanid,}))
 
     dat = get_members_info(clanid)
-    dat = [list(x[:-1]) + unpack_rewards(x[-1]) for x in dat]
+    dat = [list(x[:-1]) + [make_bbcode(x[-1])] + unpack_rewards(x[-1]) for x in dat]
     #for itm in dat:
     #    logging.info("dat: %s" % itm)
 
