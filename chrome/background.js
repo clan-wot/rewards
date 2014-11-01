@@ -11,8 +11,8 @@ var msg_text03 = "Пользователи без профиля";
 var msg_text04 = "На этой странице не обнаружено правильных пользовательских профилей!";
 var msg_text05 = "Загрузить с форума";
 
-//var host = 'spice-rewards.appspot.com'
-var host = 'localhost:8080'
+var host = 'spice-rewards.appspot.com'
+//var host = 'localhost:8080'
 
 var reward_url_edit = host + '/edit';
 var reward_url_view = host + '/clan';
@@ -88,11 +88,12 @@ function loadUserData(results) {
 
 function getUserData(results) {
   current_user_profile = results[0][0];
-
-  //alert("rank: " + results[0][1] + "\nrewards:\n" + results[0][2]);
   current_user_rank = results[0][1];
   current_user_rewards = results[0][2];
-
+  /*
+  console.log(current_user_profile + " " + current_user_rank);
+  console.log(current_user_rewards);
+  */
   chrome.tabs.onUpdated.addListener(onUserProfileOpen);
   chrome.tabs.create({url: current_user_profile});
 }
