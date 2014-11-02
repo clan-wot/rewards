@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+	# -*- coding: utf-8 -*-
 
 forum = "http://spice.forum2x2.net"
 
@@ -35,9 +35,9 @@ rewards = {
   "Награждаются командиры и бойцы HOT SPICE у которых в ангаре 5 и более образцов ТОП техники. Для Артоводов - 3 ТОП САУ + 1 ТОП танк (СТ, ТТ, ПТ-САУ)."
   ),
   
-  12:  (False, "УБД", "Участник боевых действий", "http://wot.inf.lv/imgs/small/znachki/uchastnik.png",
-  "Награждаются командиры и бойцы HOT SPICE за участие в боевых действиях на ГК."
-  ),
+  #12:  (False, "УБД", "Участник боевых действий", "http://wot.inf.lv/imgs/small/znachki/uchastnik.png",
+  #"Награждаются командиры и бойцы HOT SPICE за участие в боевых действиях на ГК."
+  #),
 	   
   13:  (False, "ЛЕД", "Леди HOT SPICE", "http://wot.inf.lv/imgs/small/znachki/ledi.png",
   "Является отличительным знаком 'Боевых подруг' HOT SPICE."
@@ -56,9 +56,9 @@ rewards = {
   23:  (False, "ОТВ", "За отвагу", "http://wot.inf.lv/imgs/small/medali/9.png",
   "Награждаются бойцы HOT SPICE за проявленное умение в ротных боях."
   ),
-#  24:  (False, "СМП", "За самопожертвование", "http://wot.inf.lv/imgs/small/medali/10.png",
-#  "Награждаются бойцы HOT SPICE за спасение товарища в бою ценой своей жизни."
-#  ),
+  24:  (False, "СМП", "За самопожертвование", "http://wot.inf.lv/imgs/small/medali/10.png",
+  "Награждаются бойцы HOT SPICE за спасение товарища в бою ценой своей жизни."
+  ),
   25:  (False, "ВРН", "За верность", "http://wot.inf.lv/imgs/small/medali/11.png",
   "Награждаются бойцы HOT SPICE за верность клану."
   ),
