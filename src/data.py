@@ -10,18 +10,18 @@ clans = {
 
 ranks = {
   0:   ("", "http://goo.gl/EV0NBP", ""),
-  2:   ("Мл.лейтенант", "http://i56.servimg.com/u/f56/18/61/98/69/ml_lej10.png", ""),
-  3:   ("Лейтенант", "http://i56.servimg.com/u/f56/18/61/98/69/lejten10.png", ""),
-  4:   ("Ст.лейтенант", "http://i56.servimg.com/u/f56/18/61/98/69/st_lej10.png", ""),
-  5:   ("Капитан", "http://i56.servimg.com/u/f56/18/61/98/69/kapita10.png", ""),
-  6:   ("Майор", "http://i56.servimg.com/u/f56/18/61/98/69/major10.png", ""),
-  7:   ("Подполковник", "http://i56.servimg.com/u/f56/18/61/98/69/podpol10.png", ""),
-  8:   ("Полковник", "http://i56.servimg.com/u/f56/18/61/98/69/polkov11.png", ""),
-  9:   ("Генерал-майор", "http://i56.servimg.com/u/f56/18/61/98/69/genera10.png", ""),
-  10:  ("Генерал-лейтенант", "http://i56.servimg.com/u/f56/18/61/98/69/genera11.png", ""),
-  11:  ("Генерал-полковник", "http://i56.servimg.com/u/f56/18/61/98/69/genera12.png", ""),
-  12:  ("Генерал-армии", "http://i56.servimg.com/u/f56/18/61/98/69/genera13.png", ""),
-  13:  ("Маршал", "http://i56.servimg.com/u/f56/18/61/98/69/marsha10.png", ""),
+  2:   ("Мл.лейтенант", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/02.png", "http://i56.servimg.com/u/f56/18/61/98/69/ml_lej10.png"),
+  3:   ("Лейтенант", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/03.png", "http://i56.servimg.com/u/f56/18/61/98/69/lejten10.png"),
+  4:   ("Ст.лейтенант", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/04.png", "http://i56.servimg.com/u/f56/18/61/98/69/st_lej10.png"),
+  5:   ("Капитан", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/05.png", "http://i56.servimg.com/u/f56/18/61/98/69/kapita10.png"),
+  6:   ("Майор", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/06.png", "http://i56.servimg.com/u/f56/18/61/98/69/major10.png"),
+  7:   ("Подполковник", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/07.png", "http://i56.servimg.com/u/f56/18/61/98/69/podpol10.png"),
+  8:   ("Полковник", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/08.png", "http://i56.servimg.com/u/f56/18/61/98/69/polkov11.png"),
+  9:   ("Генерал-майор", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/09.png", "http://i56.servimg.com/u/f56/18/61/98/69/genera10.png"),
+  10:  ("Генерал-лейтенант", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/10.png", "http://i56.servimg.com/u/f56/18/61/98/69/genera11.png"),
+  11:  ("Генерал-полковник", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/11.png", "http://i56.servimg.com/u/f56/18/61/98/69/genera12.png"),
+  12:  ("Генерал-армии", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/12.png", "http://i56.servimg.com/u/f56/18/61/98/69/genera13.png"),
+  13:  ("Маршал", "http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/13.png", "http://i56.servimg.com/u/f56/18/61/98/69/marsha10.png"),
 }
 
 rewards = {
