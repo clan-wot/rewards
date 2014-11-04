@@ -16,6 +16,19 @@ rank_table["http://i56.servimg.com/u/f56/18/61/98/69/st_lej10.png"] = 4;
 rank_table["http://i56.servimg.com/u/f56/18/61/98/69/lejten10.png"] = 3;
 rank_table["http://i56.servimg.com/u/f56/18/61/98/69/ml_lej10.png"] = 2;
 
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/02.png"] = 2;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/03.png"] = 3;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/04.png"] = 4;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/05.png"] = 5;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/06.png"] = 6;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/07.png"] = 7;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/08.png"] = 8;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/09.png"] = 9;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/10.png"] = 10;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/11.png"] = 11;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/12.png"] = 12;
+rank_table["http://raw.githubusercontent.com/clan-wot/forum2x2.net/master/images/ranks/13.png"] = 13;
+
 var medal_table = new Object();
 
 medal_table["http://wot.inf.lv/imgs/small/znachki/21.png"] =               "10=1";
