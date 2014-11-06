@@ -1,4 +1,4 @@
-import logging, json
+import logging, json, datetime
 
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import redirect, render_to_response
@@ -35,6 +35,7 @@ class Account(db.Model):
     clan_id = db.StringProperty(default='')
     rank = db.IntegerProperty(default=0)
     rewards = db.TextProperty(default='')
+    member_since = db.DateTimeProperty(default=None)
 
 def mainpage(request):
     return render_to_response('main.html', {'clans': data.clans, })
@@ -93,14 +94,22 @@ class Table(tables.Table):
         if django_request:
             tables.RequestConfig(django_request, paginate={"per_page": rows_per_page}).configure(self)
 
-templ_nick = "{% if record.2 %}<a target='_blank' title='{{record.5}}' rank_code='{{record.4}}' id='link_{{record.2}}' href='" + data.forum + "/{{record.2}}'>{{value}}</a>{% else %}{{value}}{% endif %}"
+templ_nick = "{% if record.2 %}<a target='_blank' title='{{record.6}}' rank_code='{{record.4}}' id='link_{{record.2}}' href='" + data.forum + "/{{record.2}}'>{{value}}</a>{% else %}{{value}}{% endif %}"
+
+class DayAgeColumn(tables.Column):
+
+    def render(self, value):
+        if int(value) < 0:
+            return ""
+        return value
 
 def table_view(request, dat):
     columns = {}
+    columns['age'] = DayAgeColumn(accessor="5")
     columns['nick'] = tables.TemplateColumn(templ_nick, accessor="1", verbose_name="Member", order_by="1.upper")
-    columns['rank'] = tables.Column(accessor="6", verbose_name="Rank", order_by="4")
+    columns['rank'] = tables.Column(accessor="7", verbose_name="Rank", order_by="4")
 
-    count = 7 # next accessor index
+    count = 8 # next accessor index
     for key in sorted(data.rewards.keys()):
         col_name = "r%d" % key
         isRate, col_title, name, grades, note, = data.rewards[key]
@@ -162,7 +171,7 @@ def table_edit(request, dat):
     columns['forum'] = tables.TemplateColumn(templ_forum, accessor="2", verbose_name="Forum")
     columns['rank'] = tables.TemplateColumn(templ_rank, accessor="4", verbose_name="Rank")
 
-    count = 6 # next accessor index
+    count = 7 # next accessor index
     for key in sorted(data.rewards.keys()):
         col_name = "r%d" % key
         isRate, col_title, name, grades, note, = data.rewards[key]
@@ -320,7 +329,7 @@ def get_members_info(clanid):
             read_list.append(x)
 
     for acc in db.get([db.Key.from_path('Account', x) for x in read_list]):
-        dat = (acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.rewards,)
+        dat = (acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, (datetime.datetime.now() - acc.member_since).days, acc.rewards,)
         memcache.set(memb_key % acc.key().name(), dat)
         info.append(dat)
 
@@ -330,13 +339,18 @@ def get_members_info(clanid):
 def get_members_list(clanid):
     return [x.name() for x in db.GqlQuery("SELECT __key__ FROM Account WHERE clan_id='%s'" % clanid)]
 
+def save_accounts(acc_list):
+    db.put(acc_list)
+    for itm in acc_list:
+        memcache.delete(memb_key % itm.key().name())
+
 def update_clan(clanid):
-    dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wot/clan/info', 'fields=members.account_name&clan_id=%s' % clanid)
+    dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wot/clan/info', 'fields=members.account_name,members.created_at&clan_id=%s' % clanid)
     dat_new = {key: value['account_name'] for (key, value) in dat[clanid]['members'].items()}
     #logging.warning("dat_new: %s" % repr(dat_new))
 
     q = db.GqlQuery("SELECT * FROM Account WHERE clan_id='%s'" % clanid)
-    dat_old = {itm.key().name(): [itm.nick, itm.forum_id, itm.rank, itm.rewards] for itm in q}
+    dat_old = {itm.key().name(): [itm.nick, itm.forum_id, itm.rank, itm.rewards, itm.member_since] for itm in q}
     #logging.warning("dat_old: %s" % repr(dat_old))
 
     set_new = set(dat_new.keys())
@@ -361,11 +375,13 @@ def update_clan(clanid):
                 acc = Account(key_name=key_list[i])
 
             acc.clan_id = clanid
+            acc.member_since = datetime.datetime.fromtimestamp(dat[clanid]['members'][key_list[i]]["created_at"])
             acc.nick = dat_new[key_list[i]]
             save_list[i] = acc
             i += 1
 
-        db.put(save_list)
+        save_accounts(save_list)
+
         logging.warning("new created: %d" % created)
         logging.warning("new exist: %d" % (len(save_list) - created))
 
@@ -373,20 +389,25 @@ def update_clan(clanid):
         save_list = db.get([db.Key.from_path('Account', key) for key in user_leave])
         for acc in save_list:
             acc.clan_id = ''
-        db.put(save_list)
+            acc.member_since = None
+        save_accounts(save_list)
         logging.warning("leave: %d" % len(save_list))
 
     if user_regular:
         # check for nick changes
         save_list = []
         for key in user_regular:
-            if dat_new[key] != dat_old[key][0]:
+            if (dat_new[key] != dat_old[key][0]) or (dat_old[key][4] != datetime.datetime.fromtimestamp(dat[clanid]['members'][key]["created_at"])):
                 save_list.append(db.Key.from_path('Account', key))
         if save_list:
             save_list = db.get(save_list)
             for acc in save_list:
                 acc.nick = dat_new[acc.key().name()]
-            db.put(save_list)
+                acc.member_since = datetime.datetime.fromtimestamp(dat[clanid]['members'][acc.key().name()]["created_at"])
+            save_accounts(save_list)
         logging.warning("nick: %d" % len(save_list))
 
     memcache.delete(clan_members_key % clanid)
+
+    # clear age column values
+    memcache.flush_all()
