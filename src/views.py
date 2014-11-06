@@ -190,7 +190,7 @@ def table_edit(request, dat):
 
 def view_ro(request, clanid, clantag):
     dat = get_members_info(clanid)
-    dat = [list(x[:-1]) + [make_bbcode(x[-1])] + [data.ranks[x[4]][0]] + unpack_rewards(x[-1]) for x in dat]
+    dat = [list(x[:-2]) + [(datetime.datetime.now() - x[-2]).days, make_bbcode(x[-1])] + [data.ranks[x[4]][0]] + unpack_rewards(x[-1]) for x in dat]
     return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': table_view(request, dat), 'clantag': clantag}))
 
 def clan_leave(request):
@@ -329,7 +329,7 @@ def get_members_info(clanid):
             read_list.append(x)
 
     for acc in db.get([db.Key.from_path('Account', x) for x in read_list]):
-        dat = (acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, (datetime.datetime.now() - acc.member_since).days, acc.rewards,)
+        dat = (acc.key().name(), acc.nick, acc.forum_id, acc.clan_id, acc.rank, acc.member_since, acc.rewards,)
         memcache.set(memb_key % acc.key().name(), dat)
         info.append(dat)
 
@@ -408,6 +408,3 @@ def update_clan(clanid):
         logging.warning("nick: %d" % len(save_list))
 
     memcache.delete(clan_members_key % clanid)
-
-    # clear age column values
-    memcache.flush_all()
