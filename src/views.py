@@ -190,7 +190,7 @@ def table_edit(request, dat):
 
 def view_ro(request, clanid, clantag):
     dat = get_members_info(clanid)
-    dat = [list(x[:-2]) + [(datetime.datetime.now() - x[-2]).days, make_bbcode(x[-1])] + [data.ranks[x[4]][0]] + unpack_rewards(x[-1]) for x in dat]
+    dat = [list(x[:-2]) + [((datetime.datetime.now() - x[-2]).days if x[-2] else ''), make_bbcode(x[-1])] + [data.ranks[x[4]][0]] + unpack_rewards(x[-1]) for x in dat]
     return render_to_response('view.html', RequestContext(request, {'clanid': clanid, 'table': table_view(request, dat), 'clantag': clantag}))
 
 def clan_leave(request):
@@ -408,3 +408,4 @@ def update_clan(clanid):
         logging.warning("nick: %d" % len(save_list))
 
     memcache.delete(clan_members_key % clanid)
+    memcache.delete(clan_members_key % '')
