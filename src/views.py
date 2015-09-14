@@ -345,7 +345,7 @@ def save_accounts(acc_list):
         memcache.delete(memb_key % itm.key().name())
 
 def update_clan(clanid):
-    dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wgn/clan/info', 'members_key=id&fields=members.account_name,members.created_at&clan_id=%s' % clanid)
+    dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wgn/clans/info', 'members_key=id&fields=members.account_name,members.joined_at&clan_id=%s' % clanid)
     dat_new = {key: value['account_name'] for (key, value) in dat[clanid]['members'].items()}
     #logging.warning("dat_new: %s" % repr(dat_new))
 
@@ -375,7 +375,7 @@ def update_clan(clanid):
                 acc = Account(key_name=key_list[i])
 
             acc.clan_id = clanid
-            acc.member_since = datetime.datetime.fromtimestamp(dat[clanid]['members'][key_list[i]]["created_at"])
+            acc.member_since = datetime.datetime.fromtimestamp(dat[clanid]['members'][key_list[i]]["joined_at"])
             acc.nick = dat_new[key_list[i]]
             save_list[i] = acc
             i += 1
@@ -397,13 +397,13 @@ def update_clan(clanid):
         # check for nick changes
         save_list = []
         for key in user_regular:
-            if (dat_new[key] != dat_old[key][0]) or (dat_old[key][4] != datetime.datetime.fromtimestamp(dat[clanid]['members'][key]["created_at"])):
+            if (dat_new[key] != dat_old[key][0]) or (dat_old[key][4] != datetime.datetime.fromtimestamp(dat[clanid]['members'][key]["joined_at"])):
                 save_list.append(db.Key.from_path('Account', key))
         if save_list:
             save_list = db.get(save_list)
             for acc in save_list:
                 acc.nick = dat_new[acc.key().name()]
-                acc.member_since = datetime.datetime.fromtimestamp(dat[clanid]['members'][acc.key().name()]["created_at"])
+                acc.member_since = datetime.datetime.fromtimestamp(dat[clanid]['members'][acc.key().name()]["joined_at"])
             save_accounts(save_list)
         logging.warning("nick: %d" % len(save_list))
 
