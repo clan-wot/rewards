@@ -345,7 +345,7 @@ def save_accounts(acc_list):
         memcache.delete(memb_key % itm.key().name())
 
 def update_clan(clanid):
-    dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wot/clan/info', 'fields=members.account_name,members.created_at&clan_id=%s' % clanid)
+    dat = papi.Session(papi.Server.RU, settings.papy_key).fetch('wgn/clan/info', 'members_key=id&fields=members.account_name,members.created_at&clan_id=%s' % clanid)
     dat_new = {key: value['account_name'] for (key, value) in dat[clanid]['members'].items()}
     #logging.warning("dat_new: %s" % repr(dat_new))
 
