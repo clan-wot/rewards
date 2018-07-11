@@ -1,9 +1,6 @@
-application: spice-rewards
-version: 1
 runtime: python27
 api_version: 1
 threadsafe: true
-
 default_expiration: "30d"
 
 libraries:
